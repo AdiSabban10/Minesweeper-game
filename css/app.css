@@ -1,0 +1,35 @@
+body {
+    text-align: center;
+    font-family: cursive;
+    background-color: rgba(231, 135, 79, 0.582);
+}
+
+button {
+    background-color: #f3ae53ec;
+    border: 0;
+    border-radius: 30%;
+    height: 30px;
+    width: 80px;
+    font-family: cursive;
+}
+
+table {
+    border-radius: 10%;
+    margin: 20px auto;
+}
+
+.cell {
+    background-color: rgba(143, 51, 35, 0.568);
+    border-radius: 30%;
+    height: 30px;
+    width: 30px;
+    /* font-family: cursive; */
+}
+
+.shown {
+    background-color:  rgba(224, 142, 127, 0.568);
+}
+
+.hide {
+    display: none;
+}
