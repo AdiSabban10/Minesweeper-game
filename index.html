@@ -16,14 +16,18 @@
         <button onclick="onLevelClicked(this)" class="level">Medium</button>
         <button onclick="onLevelClicked(this)" class="level">Expert</button>
         <br>
+        Time: <span class="time">0</span>
         <br>
-        Time: <span class="time">0.000</span>
+        Live: <span class="live"></span>
+        <br>
+        <button onclick="onInit()" class="smiley">😀</button>
     </div>
-    <div class="board-container"></div>
+
     <div class="game-over hide">
         <h3><span class="msg">VICTORY</span></h3>
-        <button onclick="onInit()">play-again</button>
     </div>
+
+    <div class="board-container"></div>
 
     <footer>Adi Sabban</footer>
     <script src="js/utils.js"></script>

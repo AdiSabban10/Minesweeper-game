@@ -13,6 +13,11 @@ button {
     font-family: cursive;
 }
 
+.smiley {
+    background-color: rgba(0, 0, 0, 0);
+    font-size: 30px;
+}
+
 table {
     border-radius: 10%;
     margin: 20px auto;
@@ -27,7 +32,11 @@ table {
 }
 
 .shown {
-    background-color:  rgba(224, 142, 127, 0.568);
+    background-color: rgba(224, 142, 127, 0.568);
+}
+
+.marked-mine {
+    background-color: red;
 }
 
 .hide {
