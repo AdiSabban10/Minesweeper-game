@@ -16,9 +16,14 @@
         <button onclick="onLevelClicked(this)" class="level">Medium</button>
         <button onclick="onLevelClicked(this)" class="level">Expert</button>
         <br>
-        Time: <span class="time">0</span>
+        Mines: <span class="mines">2</span>
+        |  Time: <span class="time">0</span>
         <br>
-        Live: <span class="live"></span>
+        Lives: <span class="lives"></span>
+        |  Hints: <span class="hints"></span>
+        <br>
+        <button onclick="markCellSafeToClick()">Safe Click- <span class="safe-click">3</span></button>
+        <button onclick="toggleMode(this)">Dark-Mode</button>
         <br>
         <button onclick="onInit()" class="smiley">😀</button>
     </div>
