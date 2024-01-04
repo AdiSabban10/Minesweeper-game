@@ -1,7 +1,7 @@
 'use strict'
 
 const MINE = '💣'
-const FLAG = '🚩'
+const MARK = '🚩'
 const EMPTY = ' '
 const HINT = '💡'
 
@@ -33,7 +33,7 @@ function onInit() {
 
     gBoard = buildBoard()
     renderBoard(gBoard)
-
+    
     hideGameOver()
 
     renderLive()
@@ -43,6 +43,8 @@ function onInit() {
     renderMinesCountUserNeedToMark()
     renderHints()
     renderSafeClick()
+
+
 }
 
 function resetGame() {
@@ -195,7 +197,7 @@ function renderCell(elCell, i, j) {
         if (currCell.isMine && !gGame.isOn) {
             value = MINE
         } else {
-            value = FLAG
+            value = MARK
         }
     }
     elCell.innerHTML = value
@@ -224,6 +226,7 @@ function onCellClicked(elCell, i, j) {
             gGame.livesCount--
             renderLive()
             gGame.shownMinesCount++
+            playSound()
             if (gGame.livesCount === 0) {
                 gameOver(false)
                 showAllMins()
@@ -244,7 +247,7 @@ function onCellClicked(elCell, i, j) {
     if (gBoard[i][j].minesAroundCount === 0 && !gBoard[i][j].isMine) expandShown(i, j)
     
     renderMinesCountUserNeedToMark()
-    checkGameOver()
+    checkIsVictory()
 
 }
 
@@ -265,12 +268,12 @@ function onCellMarked(elCell, i, j) {
         gBoard[i][j].isMarked = true
         gGame.markedCount++
         
-        elCell.innerHTML = FLAG
+        elCell.innerHTML = MARK
     }
 
     renderMinesCountUserNeedToMark()
 
-    checkGameOver()
+    checkIsVictory()
 }
 
 
@@ -298,15 +301,27 @@ function expandShown(rowIdx, colIdx) {
     }
 }
 
+// In case of victory, you should put a check mark in the empty cells
+function putMarkInEmptyCell(){
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            var currCell = gBoard[i][j]
+            if (currCell.isShown) continue
+        
+            const elCell = document.querySelector(`.cell-${i}-${j}`)
+            elCell.innerHTML = MARK
+        }
+    }
 
+}
 
-function checkGameOver() {
+function checkIsVictory() {
     var numCellsShuldBeShown = gLevel.SIZE ** 2 - gLevel.MINES + gGame.shownMinesCount
-    var numCellsShuldBeMarked = gLevel.MINES - gGame.shownMinesCount
-
-    if (gGame.shownCount === numCellsShuldBeShown &&
-        gGame.markedCount === numCellsShuldBeMarked) {
+    
+    if (gGame.shownCount === numCellsShuldBeShown){
+        putMarkInEmptyCell()
         gameOver(true)
+        playVictorySound()
 
         const elSmiley = document.querySelector('.smiley')
         elSmiley.innerText = '😎'
@@ -380,6 +395,11 @@ function showCellAndNeg(rowIdx, colIdx){
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
             if (j < 0 || j >= gBoard[i].length) continue
             if(gBoard[i][j].isShown) continue
+            if(gBoard[i][j].isMarked) { // Click on hint, the MARK has disappeared
+                gBoard[i][j].isMarked = false 
+                gGame.markedCount--
+                renderMinesCountUserNeedToMark()
+            }
             const elCell = document.querySelector(`.cell-${i}-${j}`)
             elCell.classList.add('hint')
             renderCell(elCell, i, j)
@@ -387,11 +407,6 @@ function showCellAndNeg(rowIdx, colIdx){
             setTimeout(() => {
                 elCell.classList.remove('hint')
                 elCell.innerHTML = EMPTY
-                // if(gBoard[i][j].isMarked) elCell.innerHTML = FLAG
-                // else elCell.innerHTML = EMPTY
-                // console.log(i,j);
-                // console.log('gBoard[i][j].isMarked:', gBoard[i][j].isMarked)
-                // elCell.innerHTML = gBoard[i][j].isMarked ? FLAG : EMPTY
             }, 1000)
         }
     }   
@@ -408,19 +423,22 @@ function renderHints() {
 }
 
 function hintActivation(){
+    if(gHint) return
     if (gGame.shownCount === 0) return
     gHint = true
     gGame.hintsCount--
     renderHints() 
 }
 
-
-
 function toggleMode(elBtn){
     gIsDark = !gIsDark
     elBtn.innerText = gIsDark ? 'Un Dark' : 'Dark'
-    var element = document.body
-    element.classList.toggle("dark-mode")
+    const element = document.body
+    const buttons = document.querySelectorAll('.btn')
+    buttons.forEach(button => {
+        button.classList.toggle('dark')
+    })
+    element.classList.toggle('dark-mode')
 
 }
 
@@ -459,3 +477,12 @@ function renderSafeClick(){
     elSpan.innerText = gGame.safeCount
 }
 
+function playSound() {
+    var sound = new Audio("sound/explode.wav")
+    sound.play()
+}
+
+function playVictorySound() {
+    var sound = new Audio("sound/victory.wav")
+    sound.play()
+}

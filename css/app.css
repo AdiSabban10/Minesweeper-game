@@ -59,15 +59,14 @@ table {
 
 .check{
     background-color: blue;
-}
-/* .mode{
-    /* background-color: #f3ae53ec; */
-    /* background-color: rgba(231, 135, 79, 0.774);
-    font-size: 10px;
-} */ 
+} 
 
 .dark-mode {
     background-color: rgba(0, 0, 0, 0.925);
+    color: rgba(255, 255, 255, 0.925);
+}
+
+.dark {
     color: rgba(255, 255, 255, 0.925);
 }
 
