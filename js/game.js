@@ -278,7 +278,7 @@ function onCellMarked(elCell, i, j) {
     renderMinesCountUserNeedToMark()
 
     checkIsVictory()
-    saveCurrMove () //for UNDO
+    saveCurrMove () 
 }
 
 
@@ -306,25 +306,33 @@ function expandShown(rowIdx, colIdx) {
     }
 }
 
+// I suggested that winning would be possible if all non-mine squares were exposed,
+//  similar to the original game. However, they instructed me to stick to the given
+//  instructions, so I deleted this:
 // In case of victory, you should put a check mark in the empty cells
-function putMarkInEmptyCell(){
-    for (var i = 0; i < gBoard.length; i++) {
-        for (var j = 0; j < gBoard[i].length; j++) {
-            var currCell = gBoard[i][j]
-            if (currCell.isShown) continue
+// function putMarkInEmptyCell(){
+//     for (var i = 0; i < gBoard.length; i++) {
+//         for (var j = 0; j < gBoard[i].length; j++) {
+//             var currCell = gBoard[i][j]
+//             if (currCell.isShown) continue
         
-            const elCell = document.querySelector(`.cell-${i}-${j}`)
-            elCell.innerHTML = MARK
-        }
-    }
-
-}
+//             const elCell = document.querySelector(`.cell-${i}-${j}`)
+//             elCell.innerHTML = MARK
+//         }
+//     }
+//     // Update that all the mines have been found
+//     const elMines = document.querySelector('.mines')
+//     elMines.innerText = 0
+// }
 
 function checkIsVictory() {
     var numCellsShuldBeShown = gLevel.SIZE ** 2 - gLevel.MINES + gGame.shownMinesCount
+    var numCellsShuldBeMarked = gLevel.MINES - gGame.shownMinesCount
     
-    if (gGame.shownCount === numCellsShuldBeShown){
-        putMarkInEmptyCell()
+    if (gGame.shownCount === numCellsShuldBeShown &&
+        gGame.markedCount === numCellsShuldBeMarked) {
+    // if (gGame.shownCount === numCellsShuldBeShown){ I deleted for the reason written above
+        // putMarkInEmptyCell() 
         gameOver(true)
         playVictorySound()
 
