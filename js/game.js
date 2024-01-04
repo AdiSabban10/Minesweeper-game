@@ -25,6 +25,9 @@ var gBoard
 var gTimer
 var gHint = false
 var gIsDark = false
+var gBoardOfGamesMoves = [] 
+var gGameOfGamesMoves = [] 
+
 
 function onInit() {
 
@@ -43,8 +46,9 @@ function onInit() {
     renderMinesCountUserNeedToMark()
     renderHints()
     renderSafeClick()
-
-
+    
+    gBoardOfGamesMoves = [] 
+    gGameOfGamesMoves = [] 
 }
 
 function resetGame() {
@@ -186,7 +190,6 @@ function renderCell(elCell, i, j) {
     var value = ''
     var currCell = gBoard[i][j]
 
-    // if (currCell.isShown) {
     if (currCell.isShown || gHint) {
         if (currCell.isMine) value = MINE
         else if (currCell.minesAroundCount) value = currCell.minesAroundCount
@@ -248,7 +251,7 @@ function onCellClicked(elCell, i, j) {
     
     renderMinesCountUserNeedToMark()
     checkIsVictory()
-
+    saveCurrMove () 
 }
 
 function onCellMarked(elCell, i, j) {
@@ -257,6 +260,7 @@ function onCellMarked(elCell, i, j) {
         event.preventDefault();
     })
 
+    if (gGame.shownCount === 0) return //First click
     if (gBoard[i][j].isShown) return
 
     if (gBoard[i][j].isMarked) {
@@ -274,6 +278,7 @@ function onCellMarked(elCell, i, j) {
     renderMinesCountUserNeedToMark()
 
     checkIsVictory()
+    saveCurrMove () //for UNDO
 }
 
 
@@ -325,7 +330,6 @@ function checkIsVictory() {
 
         const elSmiley = document.querySelector('.smiley')
         elSmiley.innerText = '😎'
-        
     }
 
 }
@@ -485,4 +489,57 @@ function playSound() {
 function playVictorySound() {
     var sound = new Audio("sound/victory.wav")
     sound.play()
+}
+
+
+function onUndoClick(){
+    if(!gGame.isOn) return
+    if (gBoardOfGamesMoves.length === 1) return
+    
+    updateCurrGameState()
+     
+    var prevBoard = deepCopyMatrix(gBoardOfGamesMoves[gBoardOfGamesMoves.length - 2]) 
+
+    for (var i = 0; i < prevBoard.length; i++) {
+        for (var j = 0; j < prevBoard[i].length; j++) {
+            gBoard[i][j] = prevBoard[i][j]
+
+            const elCell = document.querySelector(`.cell-${i}-${j}`)
+            renderCell(elCell, i, j)
+
+            if(!prevBoard[i][j].isShown) elCell.classList.remove('shown')
+        }
+    }
+    renderMinesCountUserNeedToMark()
+    renderLive()
+
+    gBoardOfGamesMoves.splice(-1, 1)
+    gGameOfGamesMoves.splice(-1, 1)
+}
+
+function saveCurrMove () {
+    var currBoardStatus = deepCopyMatrix(gBoard) 
+    gBoardOfGamesMoves.push(currBoardStatus)
+    
+    var currGameStatus = modifyShallowCopy(gGame) 
+    gGameOfGamesMoves.push(currGameStatus)
+}
+
+function updateCurrGameState(){ 
+    var idxPrevMove = gBoardOfGamesMoves.length - 2
+    var prevGameStatus = gGameOfGamesMoves[idxPrevMove]
+
+    gGame.shownCount = prevGameStatus.shownCount
+    gGame.markedCount = prevGameStatus.markedCount
+    gGame.shownMinesCount = prevGameStatus.shownMinesCount
+    gGame.livesCount = prevGameStatus.livesCount
+
+}
+
+function deepCopyMatrix(matrix) {
+    return matrix.map(row => row.map(obj => ({ ...obj })));
+}
+
+function modifyShallowCopy(obj) {
+    return Object.assign({}, obj)
 }
