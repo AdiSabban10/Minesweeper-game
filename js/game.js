@@ -475,9 +475,9 @@ function markCellSafeToClick(){
     gGame.safeCount--
 
     const elCell = document.querySelector(`.cell-${pos.i}-${pos.j}`)
-    elCell.classList.add('safe')
+    elCell.classList.add('hint')
     setTimeout(() => {
-        elCell.classList.remove('safe')
+        elCell.classList.remove('hint')
     }, 2000)
     
     renderSafeClick()
