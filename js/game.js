@@ -9,18 +9,11 @@ const gGame = {
     isOn: false,
     shownCount: 0,
     markedCount: 0,
-    shownMinesCount: 0,
     secsPassed: 0,
     livesCount: 1,
     hintsCount: 3,
-    isHintOn: false,
     safeCount: 3,
-    isMegaHintOn: false,
-    megaHintLocation: [],
-    megaHintIsUsable: true,
-    isDark: false,
-    boardOfGamesMoves: [],
-    dataOfGamesMoves: [],
+    shownMinesCount: 0
 }
 
 var gLevel = {
@@ -28,7 +21,12 @@ var gLevel = {
     MINES: 2
 }
 
-var gBoard 
+var gBoard
+var gTimer
+var gHint = false
+var gIsDark = false
+var gBoardOfGamesMoves = [] 
+var gGameOfGamesMoves = [] 
 
 
 function onInit() {
@@ -49,6 +47,8 @@ function onInit() {
     renderHints()
     renderSafeClick()
     
+    gBoardOfGamesMoves = [] 
+    gGameOfGamesMoves = [] 
 }
 
 function resetGame() {
@@ -62,10 +62,7 @@ function resetGame() {
 
     gGame.hintsCount = 3
     gGame.safeCount = 3
-    gGame.megaHintLocation = []
-    gGame.megaHintIsUsable = true
-    gGame.boardOfGamesMoves = [] 
-    gGame.dataOfGamesMoves = [] 
+    
 
 }
 
@@ -193,7 +190,7 @@ function renderCell(elCell, i, j) {
     var value = ''
     var currCell = gBoard[i][j]
 
-    if (currCell.isShown || gGame.isHintOn || gGame.isMegaHintOn) {
+    if (currCell.isShown || gHint) {
         if (currCell.isMine) value = MINE
         else if (currCell.minesAroundCount) value = currCell.minesAroundCount
         else value = EMPTY
@@ -221,12 +218,12 @@ function onCellClicked(elCell, i, j) {
         UpdatBoardMinesNegsCount(gBoard)
         startTimer()
     } else {
-        if (gGame.isHintOn) {
+        if (gHint) {
             showCellAndNeg(i, j)
-            gGame.isHintOn = false
+            gHint = false
             return
-        } 
-        if (gGame.isMegaHintOn) return getLocationsForMegaHint(i, j)
+        }
+
         if (gBoard[i][j].isMarked) return
         if (gBoard[i][j].isMine) {
             gGame.livesCount--
@@ -286,7 +283,7 @@ function onCellMarked(elCell, i, j) {
 
 
 function expandShown(rowIdx, colIdx) {
-    if(gGame.isHintOn || gGame.isMegaHintOn) return // When the hint is activated the opening should not be extended
+    if(gHint) return // When the hint is activated the opening should not be extended
 
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         if (i < 0 || i >= gBoard.length) continue
@@ -438,16 +435,16 @@ function renderHints() {
 }
 
 function hintActivation(){
-    if(gGame.isHintOn) return
+    if(gHint) return
     if (gGame.shownCount === 0) return
-    gGame.isHintOn = true
+    gHint = true
     gGame.hintsCount--
     renderHints() 
 }
 
 function toggleMode(elBtn){
-    gGame.isDark = !gGame.isDark
-    elBtn.innerText = gGame.isDark ? 'Un Dark' : 'Dark'
+    gIsDark = !gIsDark
+    elBtn.innerText = gIsDark ? 'Un Dark' : 'Dark'
     const element = document.body
     const buttons = document.querySelectorAll('.btn')
     buttons.forEach(button => {
@@ -505,11 +502,11 @@ function playVictorySound() {
 
 function onUndoClick(){
     if(!gGame.isOn) return
-    if (gGame.boardOfGamesMoves.length === 1) return
+    if (gBoardOfGamesMoves.length === 1) return
     
     updateCurrGameState()
      
-    var prevBoard = deepCopyMatrix(gGame.boardOfGamesMoves[gGame.boardOfGamesMoves.length - 2]) 
+    var prevBoard = deepCopyMatrix(gBoardOfGamesMoves[gBoardOfGamesMoves.length - 2]) 
 
     for (var i = 0; i < prevBoard.length; i++) {
         for (var j = 0; j < prevBoard[i].length; j++) {
@@ -524,21 +521,21 @@ function onUndoClick(){
     renderMinesCountUserNeedToMark()
     renderLive()
 
-    gGame.boardOfGamesMoves.splice(-1, 1)
-    gGame.dataOfGamesMoves.splice(-1, 1)
+    gBoardOfGamesMoves.splice(-1, 1)
+    gGameOfGamesMoves.splice(-1, 1)
 }
 
 function saveCurrMove () {
     var currBoardStatus = deepCopyMatrix(gBoard) 
-    gGame.boardOfGamesMoves.push(currBoardStatus)
+    gBoardOfGamesMoves.push(currBoardStatus)
     
     var currGameStatus = modifyShallowCopy(gGame) 
-    gGame.dataOfGamesMoves.push(currGameStatus)
+    gGameOfGamesMoves.push(currGameStatus)
 }
 
 function updateCurrGameState(){ 
-    var idxPrevMove = gGame.boardOfGamesMoves.length - 2
-    var prevGameStatus = gGame.dataOfGamesMoves[idxPrevMove]
+    var idxPrevMove = gBoardOfGamesMoves.length - 2
+    var prevGameStatus = gGameOfGamesMoves[idxPrevMove]
 
     gGame.shownCount = prevGameStatus.shownCount
     gGame.markedCount = prevGameStatus.markedCount
@@ -553,58 +550,4 @@ function deepCopyMatrix(matrix) {
 
 function modifyShallowCopy(obj) {
     return Object.assign({}, obj)
-}
-
-function onMegaHintClick(){
-    if (!gGame.megaHintIsUsable) return
-    if (gGame.shownCount === 0) return
-    gGame.isMegaHintOn = true
-    if(gGame.megaHintLocation.length < 2) return
-    
-    var location1 = gGame.megaHintLocation[0]
-    var location2 = gGame.megaHintLocation[1]
-    
-    showAreaOfBoard(location1, location2)
-    gGame.isMegaHintOn = false
-    gGame.megaHintIsUsable = false
-    
-}
-
-function getLocationsForMegaHint(i, j){
-    var location = { i , j }
-    
-    if (gGame.megaHintLocation.length !== 0 && 
-        (gGame.megaHintLocation[0].i > i || gGame.megaHintLocation[0].j > j)) return
-         
-    gGame.megaHintLocation.push(location)
-    onMegaHintClick()
-}
-
-function showAreaOfBoard(location1, location2){
-    var firstRowIdx = location1.i
-    var firstColIdx = location1.j
-    
-    var lastRowIdx = location2.i
-    var lastColIdx = location2.j
-
-    for (var i = firstRowIdx; i <= lastRowIdx; i++) {
-        if (i < 0 || i >= gBoard.length) continue
-        for (var j = firstColIdx; j <= lastColIdx; j++) {
-            if (j < 0 || j >= gBoard[i].length) continue
-            if(gBoard[i][j].isShown) continue
-            if(gBoard[i][j].isMarked) { // Click on hint, the MARK has disappeared
-                gBoard[i][j].isMarked = false 
-                gGame.markedCount--
-                renderMinesCountUserNeedToMark()
-            }
-            const elCell = document.querySelector(`.cell-${i}-${j}`)
-            elCell.classList.add('hint')
-            renderCell(elCell, i, j)
-            
-            setTimeout(() => {
-                elCell.classList.remove('hint')
-                elCell.innerHTML = EMPTY
-            }, 2000)
-        }
-    }  
 }
