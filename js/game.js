@@ -15,9 +15,9 @@ const gGame = {
     hintsCount: 3,
     isHintOn: false,
     safeCount: 3,
-    // isMegaHintOn: false,
-    // megaHintLocation: [],
-    // megaHintIsUsable: true,
+    isMegaHintOn: false,
+    megaHintLocation: [],
+    megaHintIsUsable: true,
     isDark: false,
     boardOfGamesMoves: [],
     dataOfGamesMoves: [],
@@ -62,8 +62,8 @@ function resetGame() {
 
     gGame.hintsCount = 3
     gGame.safeCount = 3
-    // gGame.megaHintLocation = []
-    // gGame.megaHintIsUsable = true
+    gGame.megaHintLocation = []
+    gGame.megaHintIsUsable = true
     gGame.boardOfGamesMoves = [] 
     gGame.dataOfGamesMoves = [] 
 
@@ -193,8 +193,7 @@ function renderCell(elCell, i, j) {
     var value = ''
     var currCell = gBoard[i][j]
 
-    // if (currCell.isShown || gGame.isHintOn || gGame.isMegaHintOn) {
-    if (currCell.isShown || gGame.isHintOn) {
+    if (currCell.isShown || gGame.isHintOn || gGame.isMegaHintOn) {
         if (currCell.isMine) value = MINE
         else if (currCell.minesAroundCount) value = currCell.minesAroundCount
         else value = EMPTY
@@ -227,7 +226,7 @@ function onCellClicked(elCell, i, j) {
             gGame.isHintOn = false
             return
         } 
-        // if (gGame.isMegaHintOn) return getLocationsForMegaHint(i, j)
+        if (gGame.isMegaHintOn) return getLocationsForMegaHint(i, j)
         if (gBoard[i][j].isMarked) return
         if (gBoard[i][j].isMine) {
             gGame.livesCount--
@@ -287,9 +286,8 @@ function onCellMarked(elCell, i, j) {
 
 
 function expandShown(rowIdx, colIdx) {
-    // if(gGame.isHintOn || gGame.isMegaHintOn) return // When the hint is activated the opening should not be extended
-    if(gGame.isHintOn) return // When the hint is activated the opening should not be extended
-
+    if(gGame.isHintOn || gGame.isMegaHintOn) return // When the hint is activated the opening should not be extended
+   
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         if (i < 0 || i >= gBoard.length) continue
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
@@ -557,56 +555,56 @@ function modifyShallowCopy(obj) {
     return Object.assign({}, obj)
 }
 
-// function onMegaHintClick(){
-//     if (!gGame.megaHintIsUsable) return
-//     if (gGame.shownCount === 0) return
-//     gGame.isMegaHintOn = true
-//     if(gGame.megaHintLocation.length < 2) return
+function onMegaHintClick(){
+    if (!gGame.megaHintIsUsable) return
+    if (gGame.shownCount === 0) return
+    gGame.isMegaHintOn = true
+    if(gGame.megaHintLocation.length < 2) return
     
-//     var location1 = gGame.megaHintLocation[0]
-//     var location2 = gGame.megaHintLocation[1]
+    var location1 = gGame.megaHintLocation[0]
+    var location2 = gGame.megaHintLocation[1]
     
-//     showAreaOfBoard(location1, location2)
-//     gGame.isMegaHintOn = false
-//     gGame.megaHintIsUsable = false
+    showAreaOfBoard(location1, location2)
+    gGame.isMegaHintOn = false
+    gGame.megaHintIsUsable = false
     
-// }
+}
 
-// function getLocationsForMegaHint(i, j){
-//     var location = { i , j }
+function getLocationsForMegaHint(i, j){
+    var location = { i , j }
     
-//     if (gGame.megaHintLocation.length !== 0 && 
-//         (gGame.megaHintLocation[0].i > i || gGame.megaHintLocation[0].j > j)) return
+    if (gGame.megaHintLocation.length !== 0 && 
+        (gGame.megaHintLocation[0].i > i || gGame.megaHintLocation[0].j > j)) return
          
-//     gGame.megaHintLocation.push(location)
-//     onMegaHintClick()
-// }
+    gGame.megaHintLocation.push(location)
+    onMegaHintClick()
+}
 
-// function showAreaOfBoard(location1, location2){
-//     var firstRowIdx = location1.i
-//     var firstColIdx = location1.j
+function showAreaOfBoard(location1, location2){
+    var firstRowIdx = location1.i
+    var firstColIdx = location1.j
     
-//     var lastRowIdx = location2.i
-//     var lastColIdx = location2.j
+    var lastRowIdx = location2.i
+    var lastColIdx = location2.j
 
-//     for (var i = firstRowIdx; i <= lastRowIdx; i++) {
-//         if (i < 0 || i >= gBoard.length) continue
-//         for (var j = firstColIdx; j <= lastColIdx; j++) {
-//             if (j < 0 || j >= gBoard[i].length) continue
-//             if(gBoard[i][j].isShown) continue
-//             if(gBoard[i][j].isMarked) { // Click on hint, the MARK has disappeared
-//                 gBoard[i][j].isMarked = false 
-//                 gGame.markedCount--
-//                 renderMinesCountUserNeedToMark()
-//             }
-//             const elCell = document.querySelector(`.cell-${i}-${j}`)
-//             elCell.classList.add('hint')
-//             renderCell(elCell, i, j)
+    for (var i = firstRowIdx; i <= lastRowIdx; i++) {
+        if (i < 0 || i >= gBoard.length) continue
+        for (var j = firstColIdx; j <= lastColIdx; j++) {
+            if (j < 0 || j >= gBoard[i].length) continue
+            if(gBoard[i][j].isShown) continue
+            if(gBoard[i][j].isMarked) { // Click on hint, the MARK has disappeared
+                gBoard[i][j].isMarked = false 
+                gGame.markedCount--
+                renderMinesCountUserNeedToMark()
+            }
+            const elCell = document.querySelector(`.cell-${i}-${j}`)
+            elCell.classList.add('hint')
+            renderCell(elCell, i, j)
             
-//             setTimeout(() => {
-//                 elCell.classList.remove('hint')
-//                 elCell.innerHTML = EMPTY
-//             }, 2000)
-//         }
-//     }  
-// }
+            setTimeout(() => {
+                elCell.classList.remove('hint')
+                elCell.innerHTML = EMPTY
+            }, 2000)
+        }
+    }  
+}
