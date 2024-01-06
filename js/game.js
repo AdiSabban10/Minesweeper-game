@@ -9,7 +9,7 @@ const gGame = {
     isOn: false,
     shownCount: 0,
     markedCount: 0,
-    shownMinesCount: 0
+    shownMinesCount: 0,
     secsPassed: 0,
     livesCount: 1,
     hintsCount: 3,
