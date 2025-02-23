@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sprint 1</title>
+    <title>Minesweeper game</title>
     <link rel="stylesheet" href="css/app.css">
 </head>
 
@@ -12,9 +12,9 @@
     <h1>Minesweeper game</h1>
     <div>
         Game Level:
-        <button onclick="onLevelClicked(this)" class="btn level">Beginner</button>
-        <button onclick="onLevelClicked(this)" class=" btn level">Medium</button>
-        <button onclick="onLevelClicked(this)" class="btn level">Expert</button>
+        <button onclick="onLevelClicked(4)" class="btn level">Beginner</button>
+        <button onclick="onLevelClicked(8)" class=" btn level">Medium</button>
+        <button onclick="onLevelClicked(12)" class="btn level">Expert</button>
         <br>
         Mines: <span class="mines">2</span>
         |  Time: <span class="time">0</span>
@@ -34,7 +34,11 @@
         <h3><span class="msg">VICTORY</span></h3>
     </div>
 
-    <div class="board-container"></div>
+    <div class="board-container">
+        <table>
+            <tbody class="board"></tbody>
+        </table>
+    </div>
 
     <footer>Adi Sabban</footer>
     <script src="js/utils.js"></script>
