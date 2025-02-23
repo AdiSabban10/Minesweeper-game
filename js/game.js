@@ -5,23 +5,7 @@ const MARK = '🚩'
 const EMPTY = ' '
 const HINT = '💡'
 
-const gGame = {
-    isOn: false,
-    shownCount: 0,
-    markedCount: 0,
-    shownMinesCount: 0,
-    secsPassed: 0,
-    livesCount: 1,
-    hintsCount: 3,
-    isHintOn: false,
-    safeCount: 3,
-    isMegaHintOn: false,
-    megaHintLocation: [],
-    megaHintIsUsable: true,
-    isDark: false,
-    boardOfGamesMoves: [],
-    dataOfGamesMoves: [],
-}
+const gGame = {}
 
 var gLevel = {
     SIZE: 4,
@@ -41,7 +25,7 @@ function onInit() {
     
     hideGameOver()
 
-    renderLive()
+    renderLives()
     const elSmiley = document.querySelector('.smiley')
     elSmiley.innerText = '😀'
 
@@ -52,21 +36,23 @@ function onInit() {
 }
 
 function resetGame() {
-    gGame.isOn = true
-    gGame.shownCount = 0
-    gGame.markedCount = 0
-    gGame.shownMinesCount = 0
-    
-    if (gLevel.SIZE === 4) gGame.livesCount = 1 //Level Beginner
-    else gGame.livesCount = 3
-
-    gGame.hintsCount = 3
-    gGame.safeCount = 3
-    gGame.megaHintLocation = []
-    gGame.megaHintIsUsable = true
-    gGame.boardOfGamesMoves = [] 
-    gGame.dataOfGamesMoves = [] 
-
+    gGame = {
+        isOn: true,
+        shownCount: 0,
+        markedCount: 0,
+        shownMinesCount: 0,
+        livesCount: gLevel.SIZE === 4 ? 1 : 3, // Beginner level: 1 life, otherwise 3
+        hintsCount: 3,
+        safeCount: 3,
+        isHintOn: false,
+        isMegaHintOn: false,
+        megaHintLocation: [],
+        megaHintIsUsable: true,
+        isDark: false,
+        boardOfGamesMoves: [],
+        dataOfGamesMoves: [],
+        secsPassed: 0
+    }
 }
 
 function resetTime() {
@@ -77,23 +63,21 @@ function resetTime() {
     elTimer.innerText = gGame.secsPassed
 }
 
-function onLevelClicked(elCell) {
-    if (elCell.innerHTML === 'Beginner') {
-        gLevel.SIZE = 4
+function onLevelClicked(size) {
+    if (size === 4) { //Beginner
         gLevel.MINES = 2
-    } else if (elCell.innerHTML === 'Medium') {
-        gLevel.SIZE = 8
+    } else if (size === 8) { //Medium
         gLevel.MINES = 14
-    } else if (elCell.innerHTML === 'Expert') {
-        gLevel.SIZE = 12
+    } else if (size === 12) { //Expert
         gLevel.MINES = 32
     }
+    gLevel.SIZE = size
 
     onInit()
 
 }
 
-function renderLive() {
+function renderLives() {
     var str = ''
     for (var i = 0; i < gGame.livesCount; i++) {
         str += ' ❤'
@@ -121,7 +105,7 @@ function buildBoard() {
 
 function renderBoard(board) {
 
-    var strHTML = '<table><tbody>'
+    var strHTML = ''
     for (var i = 0; i < board.length; i++) {
 
         strHTML += '<tr>'
@@ -134,10 +118,9 @@ function renderBoard(board) {
         }
         strHTML += '</tr>'
     }
-    strHTML += '</tbody></table>'
 
-    const elContainer = document.querySelector('.board-container')
-    elContainer.innerHTML = strHTML
+    const elTbody = document.querySelector('.board')
+    elTbody.innerHTML = strHTML
 }
 
 //The function gets empty random cells and puts mines in them
@@ -230,7 +213,7 @@ function onCellClicked(elCell, i, j) {
         if (gBoard[i][j].isMarked) return
         if (gBoard[i][j].isMine) {
             gGame.livesCount--
-            renderLive()
+            renderLives()
             gGame.shownMinesCount++
             playSound()
             if (gGame.livesCount === 0) {
@@ -522,7 +505,7 @@ function onUndoClick(){
         }
     }
     renderMinesCountUserNeedToMark()
-    renderLive()
+    renderLives()
 
     gGame.boardOfGamesMoves.splice(-1, 1)
     gGame.dataOfGamesMoves.splice(-1, 1)
