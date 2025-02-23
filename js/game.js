@@ -36,23 +36,24 @@ function onInit() {
 }
 
 function resetGame() {
-    gGame = {
-        isOn: true,
-        shownCount: 0,
-        markedCount: 0,
-        shownMinesCount: 0,
-        livesCount: gLevel.SIZE === 4 ? 1 : 3, // Beginner level: 1 life, otherwise 3
-        hintsCount: 3,
-        safeCount: 3,
-        isHintOn: false,
-        isMegaHintOn: false,
-        megaHintLocation: [],
-        megaHintIsUsable: true,
-        isDark: false,
-        boardOfGamesMoves: [],
-        dataOfGamesMoves: [],
-        secsPassed: 0
-    }
+    gGame.isOn = true
+    gGame.shownCount = 0
+    gGame.markedCount = 0
+    gGame.shownMinesCount = 0
+
+    if (gLevel.SIZE === 4) gGame.livesCount = 1 //Level Beginner
+    else gGame.livesCount = 3
+
+    gGame.hintsCount = 3
+    gGame.isHintOn = false
+    gGame.safeCount = 3
+    gGame.isMegaHintOn = false
+    gGame.megaHintLocation = []
+    gGame.megaHintIsUsable = true
+    gGame.isDark = false
+    gGame.boardOfGamesMoves = []
+    gGame.dataOfGamesMoves = []
+
 }
 
 function resetTime() {
